@@ -268,6 +268,7 @@ class AdCreative(Stream):
             # Execute and create a new batch for every 50 added
             if batch_count % 50 == 0:
                 api_batch.execute()
+                time.sleep(5)
                 api_batch = API.new_batch()
 
             # Add a call to the batch with the full object
@@ -486,6 +487,7 @@ class Leads(Stream):
             # Execute and create a new batch for every 50 added
             if batch_count % 50 == 0:
                 api_batch.execute()
+                time.sleep(5)
                 api_batch = API.new_batch()
 
             # Add a call to the batch with the full object
