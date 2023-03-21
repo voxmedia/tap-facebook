@@ -273,7 +273,6 @@ class AdCreative(Stream):
             # Execute and create a new batch for every 50 added
             if batch_count % 50 == 0:
                 api_batch.execute()
-                time.sleep(5)
                 api_batch = API.new_batch()
 
             # Add a call to the batch with the full object
@@ -321,6 +320,7 @@ class Ads(IncrementalStream):
             params = {'limit': RESULT_RETURN_LIMIT}
             if self.current_bookmark:
                 params.update({'filtering': [{'field': 'ad.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp}]})
+                time.sleep(5)
             yield self._call_get_ads(params)
 
         def do_request_multiple():
@@ -330,6 +330,7 @@ class Ads(IncrementalStream):
                 bookmark_params.append({'field': 'ad.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp})
             for del_info_filt in iter_delivery_info_filter('ad'):
                 params.update({'filtering': [del_info_filt] + bookmark_params})
+                time.sleep(5)
                 filt_ads = self._call_get_ads(params)
                 yield filt_ads
 
@@ -369,6 +370,7 @@ class AdSets(IncrementalStream):
             params = {'limit': RESULT_RETURN_LIMIT}
             if self.current_bookmark:
                 params.update({'filtering': [{'field': 'adset.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp}]})
+                time.sleep(5)
             yield self._call_get_ad_sets(params)
 
         def do_request_multiple():
@@ -378,6 +380,7 @@ class AdSets(IncrementalStream):
                 bookmark_params.append({'field': 'adset.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp})
             for del_info_filt in iter_delivery_info_filter('adset'):
                 params.update({'filtering': [del_info_filt] + bookmark_params})
+                time.sleep(5)
                 filt_adsets = self._call_get_ad_sets(params)
                 yield filt_adsets
 
@@ -419,6 +422,7 @@ class Campaigns(IncrementalStream):
             params = {'limit': RESULT_RETURN_LIMIT}
             if self.current_bookmark:
                 params.update({'filtering': [{'field': 'campaign.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp}]})
+                time.sleep(5)
             yield self._call_get_campaigns(params)
 
         def do_request_multiple():
@@ -428,6 +432,7 @@ class Campaigns(IncrementalStream):
                 bookmark_params.append({'field': 'campaign.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp})
             for del_info_filt in iter_delivery_info_filter('campaign'):
                 params.update({'filtering': [del_info_filt] + bookmark_params})
+                time.sleep(5)
                 filt_campaigns = self._call_get_campaigns(params)
                 yield filt_campaigns
 
@@ -492,7 +497,6 @@ class Leads(Stream):
             # Execute and create a new batch for every 50 added
             if batch_count % 50 == 0:
                 api_batch.execute()
-                time.sleep(5)
                 api_batch = API.new_batch()
 
             # Add a call to the batch with the full object
