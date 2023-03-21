@@ -276,6 +276,7 @@ class AdCreative(Stream):
                 api_batch = API.new_batch()
 
             # Add a call to the batch with the full object
+            time.sleep(5)
             obj.api_get(fields=self.fields(),
                         batch=api_batch,
                         success=partial(batch_record_success, stream=self, transformer=transformer, schema=schema),
@@ -313,6 +314,7 @@ class Ads(IncrementalStream):
         This is necessary because the functions that call this endpoint return
         a generator, whose calls need decorated with a backoff.
         """
+        time.sleep(5)
         return self.account.get_ads(fields=self.automatic_fields(), params=params) # pylint: disable=no-member
 
     def __iter__(self):
@@ -363,6 +365,7 @@ class AdSets(IncrementalStream):
         This is necessary because the functions that call this endpoint return
         a generator, whose calls need decorated with a backoff.
         """
+        time.sleep(5)
         return self.account.get_ad_sets(fields=self.automatic_fields(), params=params) # pylint: disable=no-member
 
     def __iter__(self):
@@ -410,6 +413,7 @@ class Campaigns(IncrementalStream):
         This is necessary because the functions that call this endpoint return
         a generator, whose calls need decorated with a backoff.
         """
+        time.sleep(5)
         return self.account.get_campaigns(fields=self.automatic_fields(), params=params) # pylint: disable=no-member
 
     def __iter__(self):
@@ -500,6 +504,7 @@ class Leads(Stream):
                 api_batch = API.new_batch()
 
             # Add a call to the batch with the full object
+            time.sleep(5)
             obj.api_get(fields=self.fields(),
                         batch=api_batch,
                         success=partial(batch_record_success, stream=self, transformer=transformer, schema=schema),
