@@ -276,7 +276,7 @@ class AdCreative(Stream):
                 api_batch = API.new_batch()
 
             # Add a call to the batch with the full object
-            time.sleep(5)
+            time.sleep(30)
             obj.api_get(fields=self.fields(),
                         batch=api_batch,
                         success=partial(batch_record_success, stream=self, transformer=transformer, schema=schema),
@@ -314,7 +314,7 @@ class Ads(IncrementalStream):
         This is necessary because the functions that call this endpoint return
         a generator, whose calls need decorated with a backoff.
         """
-        time.sleep(5)
+        time.sleep(30)
         return self.account.get_ads(fields=self.automatic_fields(), params=params) # pylint: disable=no-member
 
     def __iter__(self):
@@ -322,7 +322,7 @@ class Ads(IncrementalStream):
             params = {'limit': RESULT_RETURN_LIMIT}
             if self.current_bookmark:
                 params.update({'filtering': [{'field': 'ad.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp}]})
-                time.sleep(5)
+                time.sleep(30)
             yield self._call_get_ads(params)
 
         def do_request_multiple():
@@ -332,7 +332,7 @@ class Ads(IncrementalStream):
                 bookmark_params.append({'field': 'ad.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp})
             for del_info_filt in iter_delivery_info_filter('ad'):
                 params.update({'filtering': [del_info_filt] + bookmark_params})
-                time.sleep(5)
+                time.sleep(30)
                 filt_ads = self._call_get_ads(params)
                 yield filt_ads
 
@@ -365,7 +365,7 @@ class AdSets(IncrementalStream):
         This is necessary because the functions that call this endpoint return
         a generator, whose calls need decorated with a backoff.
         """
-        time.sleep(5)
+        time.sleep(30)
         return self.account.get_ad_sets(fields=self.automatic_fields(), params=params) # pylint: disable=no-member
 
     def __iter__(self):
@@ -373,7 +373,7 @@ class AdSets(IncrementalStream):
             params = {'limit': RESULT_RETURN_LIMIT}
             if self.current_bookmark:
                 params.update({'filtering': [{'field': 'adset.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp}]})
-                time.sleep(5)
+                time.sleep(30)
             yield self._call_get_ad_sets(params)
 
         def do_request_multiple():
@@ -383,7 +383,7 @@ class AdSets(IncrementalStream):
                 bookmark_params.append({'field': 'adset.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp})
             for del_info_filt in iter_delivery_info_filter('adset'):
                 params.update({'filtering': [del_info_filt] + bookmark_params})
-                time.sleep(5)
+                time.sleep(30)
                 filt_adsets = self._call_get_ad_sets(params)
                 yield filt_adsets
 
@@ -413,7 +413,7 @@ class Campaigns(IncrementalStream):
         This is necessary because the functions that call this endpoint return
         a generator, whose calls need decorated with a backoff.
         """
-        time.sleep(5)
+        time.sleep(30)
         return self.account.get_campaigns(fields=self.automatic_fields(), params=params) # pylint: disable=no-member
 
     def __iter__(self):
@@ -426,7 +426,7 @@ class Campaigns(IncrementalStream):
             params = {'limit': RESULT_RETURN_LIMIT}
             if self.current_bookmark:
                 params.update({'filtering': [{'field': 'campaign.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp}]})
-                time.sleep(5)
+                time.sleep(30)
             yield self._call_get_campaigns(params)
 
         def do_request_multiple():
@@ -436,7 +436,7 @@ class Campaigns(IncrementalStream):
                 bookmark_params.append({'field': 'campaign.' + UPDATED_TIME_KEY, 'operator': 'GREATER_THAN', 'value': self.current_bookmark.int_timestamp})
             for del_info_filt in iter_delivery_info_filter('campaign'):
                 params.update({'filtering': [del_info_filt] + bookmark_params})
-                time.sleep(5)
+                time.sleep(30)
                 filt_campaigns = self._call_get_campaigns(params)
                 yield filt_campaigns
 
@@ -504,7 +504,7 @@ class Leads(Stream):
                 api_batch = API.new_batch()
 
             # Add a call to the batch with the full object
-            time.sleep(5)
+            time.sleep(30)
             obj.api_get(fields=self.fields(),
                         batch=api_batch,
                         success=partial(batch_record_success, stream=self, transformer=transformer, schema=schema),
