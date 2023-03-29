@@ -55,12 +55,12 @@ STREAMS = [
     'adsets',
     'campaigns',
     'ads_insights',
-    # 'ads_insights_age_and_gender',
-    # 'ads_insights_country',
+    'ads_insights_age_and_gender',
+    'ads_insights_country',
     # 'ads_insights_platform_and_device',
-    # 'ads_insights_region',
-    # 'ads_insights_dma',
-    # 'ads_insights_hourly_advertiser',
+    'ads_insights_region',
+    'ads_insights_dma',
+    'ads_insights_hourly_advertiser',
     #'leads',
 ]
 
