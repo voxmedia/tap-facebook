@@ -916,8 +916,8 @@ def main_impl():
             do_discover()
         except FacebookError as fb_error:
             raise_from(SingerDiscoveryError, fb_error)
-    elif args.properties:
-        catalog = Catalog.from_dict(args.properties)
+    elif args.catalog:
+        catalog = args.catalog
         try:
             do_sync(account, catalog, args.state)
         except FacebookError as fb_error:
