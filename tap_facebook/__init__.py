@@ -127,11 +127,13 @@ def raise_from(singer_error, fb_error):
     """
     if isinstance(fb_error, FacebookRequestError):
         http_method = fb_error.request_context().get('method', 'Unknown HTTP Method')
-        fb_error_body = fb_error.body().get('error', {})
+        fb_error_body = extract_facebook_error_body(fb_error)
         if isinstance(fb_error_body, dict):
             fb_error_message = fb_error_body.get('message')
         else:
             fb_error_message = fb_error_body
+        if not fb_error_message:
+            fb_error_message = 'Unknown Facebook error response'
         error_message = '{}: {} Message: {}'.format(
             http_method,
             fb_error.http_status(),
@@ -142,6 +144,23 @@ def raise_from(singer_error, fb_error):
         # them the same as a python error
         error_message = str(fb_error)
     raise singer_error(error_message) from fb_error
+
+def extract_facebook_error_body(fb_error):
+    body = fb_error.body()
+    if isinstance(body, dict):
+        return body.get('error', {})
+    if isinstance(body, str):
+        stripped_body = body.strip()
+        if not stripped_body:
+            return {}
+        try:
+            parsed_body = json.loads(stripped_body)
+        except ValueError:
+            return stripped_body
+        if isinstance(parsed_body, dict):
+            return parsed_body.get('error', parsed_body)
+        return stripped_body
+    return {}
 
 def retry_pattern(backoff_type, exception, **wait_gen_kwargs):
     def log_retry_attempt(details):
@@ -664,6 +683,19 @@ class AdsInsights(Stream):
         job = job.api_get()
         return job
 
+    @staticmethod
+    @retry_pattern(backoff.expo, FacebookRequestError, max_tries=5, factor=5)
+    def __load_next_page_with_retry(results):
+        return results.load_next_page()
+
+    @staticmethod
+    def __iter_results(results):
+        while True:
+            while results._queue:
+                yield results._queue.pop(0)
+            if not AdsInsights.__load_next_page_with_retry(results):
+                return
+
     @retry_pattern(backoff.expo, (Timeout, ConnectionError), max_tries=5, factor=2)
     # Added retry_pattern to handle AttributeError raised from requests call below
     @retry_pattern(backoff.expo, (FacebookRequestError, InsightsJobTimeout, FacebookBadObjectError, TypeError, AttributeError), max_tries=5, factor=5)
@@ -714,7 +746,7 @@ class AdsInsights(Stream):
 
             min_date_start_for_job = None
             count = 0
-            for obj in job.get_result():
+            for obj in self.__iter_results(job.get_result()):
                 count += 1
                 rec = obj.export_all_data()
                 if not min_date_start_for_job or rec['date_stop'] < min_date_start_for_job:

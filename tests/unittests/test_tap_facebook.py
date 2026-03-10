@@ -1,10 +1,10 @@
 import itertools
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 import pendulum
 import tap_facebook
 
-from tap_facebook import AdsInsights
+from tap_facebook import AdsInsights, FacebookRequestError
 from singer.catalog import Catalog, CatalogEntry
 from singer.schema import Schema
 from singer.utils import strftime, parse_args
@@ -153,6 +153,20 @@ class TestErrorHandling(unittest.TestCase):
     def test_sync(self):
         with self.assertRaises(SingerSyncError):
             tap_facebook.main()
+
+    def test_raise_from_handles_empty_string_error_body(self):
+        with self.assertRaises(SingerSyncError) as error:
+            tap_facebook.raise_from(
+                SingerSyncError,
+                FacebookRequestError(
+                    message='Call was not successful',
+                    request_context={'method': 'GET'},
+                    http_status=500,
+                    http_headers=Mock(),
+                    body='',
+                ),
+            )
+        self.assertEqual('GET: 500 Message: Unknown Facebook error response', str(error.exception))
 
 
 
