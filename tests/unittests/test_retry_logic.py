@@ -259,3 +259,47 @@ class TestInsightJobs(unittest.TestCase):
         ad_insights_object.run_job({})
         self.assertEquals(3, mocked_account.get_insights.return_value.api_get.call_count)
         self.assertEquals(1, mocked_account.get_insights.call_count)
+
+    @patch('time.sleep', return_value=None)
+    def test_result_pagination_retry_succeeds_eventually(self, _sleep):
+        """AdsInsights iteration should retry transient page-load failures."""
+
+        mocked_bad_response = FacebookRequestError(
+            message='Call was not successful',
+            request_context={'method': 'GET'},
+            http_status=500,
+            http_headers=Mock(),
+            body='',
+        )
+
+        mocked_record = Mock()
+        mocked_record.export_all_data.return_value = {'date_stop': '2026-03-10'}
+
+        class MockResults:
+            def __init__(self):
+                self._queue = []
+                self.load_next_page = Mock(side_effect=self._side_effect)
+                self._calls = 0
+
+            def _side_effect(self):
+                self._calls += 1
+                if self._calls == 1:
+                    raise mocked_bad_response
+                if self._calls == 2:
+                    self._queue.append(mocked_record)
+                    return True
+                return False
+
+        mocked_results = MockResults()
+        mocked_job = Mock()
+        mocked_job.get_result.return_value = mocked_results
+
+        ad_insights_object = AdsInsights('', Mock(), '', '', {}, {})
+        ad_insights_object.job_params = Mock(return_value=iter([{'time_ranges': [{'until': '2026-03-10'}]}]))
+        ad_insights_object.run_job = Mock(return_value=mocked_job)
+
+        messages = list(ad_insights_object)
+
+        self.assertEqual(2, len(messages))
+        self.assertEqual({'date_stop': '2026-03-10'}, messages[0]['record'])
+        self.assertEqual(3, mocked_results.load_next_page.call_count)
